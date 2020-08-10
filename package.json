@@ -1,0 +1,36 @@
+{
+  "name": "tinvest-trading-stat",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/igor4566/tinvest-trading-stat.git"
+  },
+  "scripts": {
+    "dev": "webpack --watch --config ./webpack.config.js",
+    "prod": "NODE_ENV=production webpack --config ./webpack.config.js --progress --colors"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-minify-webpack-plugin": "^0.2.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.7",
+    "extract-loader": "^1.0.1",
+    "extract-text-webpack-plugin": "^3.0.1",
+    "extricate-loader": "^2.0.0",
+    "file-loader": "^1.1.5",
+    "html-loader": "^0.5.1",
+    "imports-loader": "^0.7.1",
+    "interpolate-loader": "^2.0.0",
+    "prop-loader": "^1.0.0",
+    "raw-loader": "^0.5.1",
+    "spawn-loader": "^4.0.0",
+    "webextension-polyfill": "^0.2.1",
+    "webpack": "^3.7.1",
+    "webpack-sources": "1.0.1",
+    "webpack-zip-files-plugin": "^1.0.0"
+  }
+}

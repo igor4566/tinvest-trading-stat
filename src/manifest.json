@@ -1,0 +1,22 @@
+{
+  "name": "TInvest trading statistics",
+  "version": "{{prop-loader?version!../package.json}}",
+  "description": "Расширение для просмотра статистики в терминале Тинькофф Инвестиции",
+  "background": {
+    "scripts": [
+      "{{./background/index.js}}"
+    ]
+  },
+  "permissions": [
+    "*://*.tinkoff.ru/invest-terminal/*",
+    "storage",
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://*.tinkoff.ru/invest-terminal/*"],
+      "js": ["{{./content/index.js}}"]
+    }
+  ],
+  "manifest_version": 2
+}
