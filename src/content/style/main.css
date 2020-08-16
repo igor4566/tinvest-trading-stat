@@ -1,0 +1,21 @@
+.stat-wrap {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+}
+.stat-wrap_items {
+    text-align: center;
+}
+.stat-wrap span {
+    font-size: 1.5em;
+    display: block;
+}
+.stat-btn {
+    background-color: #2d3d47;
+    border: none;
+    margin-right: 2px;
+    cursor: pointer;
+}

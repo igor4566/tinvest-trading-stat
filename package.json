@@ -1,6 +1,6 @@
 {
   "name": "tinvest-trading-stat",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -32,5 +32,10 @@
     "webpack": "^3.7.1",
     "webpack-sources": "1.0.1",
     "webpack-zip-files-plugin": "^1.0.0"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "chart.js": "^2.9.3",
+    "moment": "^2.27.0"
   }
 }
