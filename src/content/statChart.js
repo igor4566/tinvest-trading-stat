@@ -52,7 +52,7 @@ export default class StatChart {
             document.getElementById('SpaceVisibleArea').addEventListener('mousemove', chartMoveEvent, false);
         }, false);
 
-        document.getElementById('SpaceVisibleArea').addEventListener('mouseup', (e) => {
+        document.getElementById('SpaceVisibleArea').addEventListener('mouseup', () => {
             initialX = currentX;
             initialY = currentY;
 
@@ -105,16 +105,15 @@ export default class StatChart {
         const data = new Data();
 
         let sumCom = 0,
-            sumPeriod = 0,
-            sumPlusOperations = 0,
             sumOperations = 0;
 
         let items = await data.getOperations(months);
 
         let obj = {};
+        let dObj = {};
         items.reverse();
 
-        for (const item of items) {
+        items.forEach((item) => {
             if (item.ticker !== 'USDRUB' && item.status === 'done' && item.ticker) {
                 const date = moment(item.date).format('L');
 
@@ -130,107 +129,135 @@ export default class StatChart {
                     item.price = -item.price;
                 }
 
+                if (!dObj[date]) {
+                    dObj[date] = {
+                        sumRUB: 0,
+                        sumUSD: 0,
+                        sumEUR: 0,
+                        sumCom: 0,
+                        tickers: {}
+                    }
+                }
+
                 if (item.operationType !== 'BrokCom') {
                     sumOperations += 1;
                 }
 
-                if (['Buy', 'Sell', 'BrokCom'].includes(item.operationType)) {
-                    obj[item.ticker][date][item.operationType] = obj[item.ticker][date][item.operationType] ? [...obj[item.ticker][date][item.operationType], item] : [item];
-                }
-            }
-        }
-
-        let dateObj = {};
-
-        for (const ticker in obj) {
-            let remainder = [];
-
-            for (const date in obj[ticker]) {
-                if (Object.keys(obj[ticker][date]).length === 0) {
-                    continue;
+                if (item.operationType === 'BrokCom') {
+                    switch (item.currency) {
+                        case 'USD':
+                            dObj[date].sumUSD += item.payment;
+                            break;
+                        case 'RUB':
+                            dObj[date].sumRUB += item.payment;
+                            break;
+                        case 'EUR':
+                            dObj[date].sumEUR += item.payment;
+                            break;
+                    }
                 }
 
-                let usdRub = 1;
-                let el = obj[ticker][date];
-                let sum = 0;
-
-                if (el.Buy && el.Buy[0].commissionCurrency === 'USD') {
-                    usdRub = Math.abs(el.Buy[0].commissionRub / el.Buy[0].commission);
-                } else if (el.Sell && el.Sell[0].commissionCurrency === 'USD') {
-                    usdRub = Math.abs(el.Sell[0].commissionRub / el.Sell[0].commission);
-                }
-
-                if (remainder.length === 0) {
-                    remainder = el.Buy ? el.Buy : el.Sell;
-                } else if (el[remainder[0].operationType]) {
-                    remainder = [...remainder, ...el[remainder[0].operationType]];
-                }
-
-                const type = remainder[0].operationType
-                const opposite = type === 'Buy' ? 'Sell' : 'Buy';
-
-                if (el[opposite]) {
-                    for (const operation of el[opposite]) {
-                        if (remainder.length === 0 || remainder[0].operationType === opposite) {
-                            remainder = [...remainder, operation];
-                            continue;
+                if (['Buy', 'Sell'].includes(item.operationType)) {
+                    if (!dObj[date].tickers[item.ticker]) {
+                        dObj[date].tickers[item.ticker] = {
+                            Buy: [],
+                            Sell: []
                         }
+                    }
+                    dObj[date].tickers[item.ticker][item.operationType].push(item);
+                    dObj[date].sumCom -= item.commissionRub ? item.commissionRub : 0;
+                    item.commissionRub = 0;
 
-                        const len = remainder.length;
+                    if (item.quantity > 0) {
+                        const unixDate = moment(item.date).unix();
+                        obj[item.ticker][date][item.operationType] = obj[item.ticker][date][item.operationType] ? [...obj[item.ticker][date][item.operationType], item] : [item];
+                        const opposite = item.operationType === 'Buy' ? 'Sell' : 'Buy';
 
-                        for (let i = 0; i < len; i++) {
-                            if (operation.quantity <= remainder[0].quantity) {
-                                sum += operation.quantity * (operation.price + remainder[0].price)
+                        items.forEach((oldItem) => {
+                            if (oldItem.ticker === item.ticker && oldItem.operationType === opposite && unixDate > moment(oldItem.date).unix() && item.quantity > 0 && oldItem.quantity > 0) {
+                                dObj[date].sumCom -= oldItem.commissionRub;
+                                oldItem.commissionRub = 0;
 
-                                if (operation.quantity * (operation.price + remainder[0].price) > 0)
-                                    sumPlusOperations += 1;
+                                let sum;
 
-                                remainder[0].quantity -= operation.quantity;
-                                if (remainder[0].quantity === 0) {
-                                    remainder.shift();
+                                if (item.quantity - oldItem.quantity >= 0) {
+                                    sum = oldItem.quantity * (oldItem.price + item.price);
+
+                                    item.quantity -= oldItem.quantity;
+                                    oldItem.quantity -= oldItem.quantity;
+                                } else {
+                                    sum = item.quantity * (oldItem.price + item.price);
+                                    item.quantity -= item.quantity;
+                                    oldItem.quantity -= item.quantity;
                                 }
-                                break;
-                            } else {
-                                sum += remainder[0].quantity * (operation.price + remainder[0].price);
 
-                                if (remainder[0].quantity * (operation.price + remainder[0].price) > 0)
-                                    sumPlusOperations += 1;
-
-                                operation.quantity -= remainder[0].quantity;
-                                remainder.shift();
-                                if (operation.quantity === 0) {
-                                    break;
+                                switch (oldItem.currency) {
+                                    case 'USD':
+                                        dObj[date].sumUSD += sum;
+                                        break;
+                                    case 'RUB':
+                                        dObj[date].sumRUB += sum;
+                                        break;
+                                    case 'EUR':
+                                        dObj[date].sumEUR += sum;
+                                        break;
                                 }
                             }
-                        }
+
+                            return oldItem
+                        })
                     }
                 }
-
-                if (obj[ticker][date].BrokCom) {
-                    for (const comm of obj[ticker][date].BrokCom) {
-                        sum += comm.payment;
-                        sumCom -= Math.round(comm.payment * usdRub)
-                    }
-                }
-
-                dateObj[date] = (dateObj[date] ? dateObj[date] : 0) + Math.round(sum * usdRub);
-                sumPeriod += Math.round(sum * usdRub);
             }
-        }
 
-        dateObj = Object.keys(dateObj).sort().reduce((r, k) => (r[k] = dateObj[k], r), {});
+            return item;
+        });
+
+        dObj = Object.keys(dObj).sort().reduce((r, k) => (r[k] = dObj[k], r), {});
 
         let labels = [],
-            debs = [];
+            debs = {
+                'USD': {
+                    label: 'USD',
+                    backgroundColor: '#174e18',
+                    data: []
+                },
+                'EUR': {
+                    label: 'EUR',
+                    backgroundColor: '#184d67',
+                    data: []
+                },
+                'RUB': {
+                    label: 'RUB',
+                    backgroundColor: '#6e234d',
+                    data: []
+                }
+            };
 
-        for (const key in dateObj) {
+        let sumUSD = 0;
+        let sumEUR = 0;
+        let sumRUB = 0;
+
+        for (const key in dObj) {
             const date = moment(key, 'L').format('DD.MM.YYYY');
 
             labels = [...labels, date];
-            debs = [...debs, dateObj[key]];
+
+            dObj[key].sumUSD = Math.round(dObj[key].sumUSD * 100) / 100
+            dObj[key].sumEUR = Math.round(dObj[key].sumEUR * 100) / 100
+            dObj[key].sumRUB = Math.round(dObj[key].sumRUB * 100) / 100
+
+            debs.USD.data.push(dObj[key].sumUSD);
+            debs.EUR.data.push(dObj[key].sumEUR);
+            debs.RUB.data.push(dObj[key].sumRUB);
+
+            sumUSD += dObj[key].sumUSD;
+            sumEUR += dObj[key].sumEUR;
+            sumRUB += dObj[key].sumRUB;
+            sumCom += dObj[key].sumCom;
         }
 
-        this._setChart(canvas, 'Доходы по дням за '+months+' мес. (руб.)', 'bar', debs, labels);
+        this._setChart(canvas, 'Доходы по дням за '+months+' мес. (руб.)', 'bar', Object.values(debs), labels);
 
         let wrapper = el.getElementsByClassName('stat-wrap');
 
@@ -244,22 +271,16 @@ export default class StatChart {
         wrapper.className = 'stat-wrap';
 
         wrapper.innerHTML = '';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Доход за период: <span><b>' + sumPeriod + ' ₽</b></span></div>';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Выплачено комиссии: <span><b>' + sumCom + ' ₽</b></span></div>';
+        wrapper.innerHTML += '<div class="stat-wrap_items">Доход за период: <span><b>' + sumUSD.toFixed(2) + ' $ / '+sumRUB.toFixed(2)+' ₽ / '+sumEUR.toFixed(2)+' €</b></span></div>';
+        wrapper.innerHTML += '<div class="stat-wrap_items">Выплачено комиссии: <span><b>' + sumCom.toFixed(2) + ' ₽</b></span></div>';
         wrapper.innerHTML += '<div class="stat-wrap_items">Кол-во сделок: <span><b>' + sumOperations + '</b></span></div>';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Кол-во прибыльных сделок: <span><b>' + sumPlusOperations + '</b></span></div>';
     }
 
     _setChart(canvas, name, type, data, labels) {
         if (window.chart) {
             window.chart.type = type;
             window.chart.data.labels = labels;
-            window.chart.data.datasets = [{
-                data: data,
-                backgroundColor: 'rgba(36, 72, 112, 1)',
-                borderColor: 'rgba(36, 72, 112, 1)',
-                fill: false
-            }];
+            window.chart.data.datasets = data;
             window.chart.options.title.text = name;
             window.chart.update();
             return;
@@ -270,16 +291,11 @@ export default class StatChart {
             type: type,
             data: {
                 labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: 'rgba(36, 72, 112, 1)',
-                    borderColor: 'rgba(36, 72, 112, 1)',
-                    fill: false
-                }]
+                datasets: data
             },
             options: {
                 legend: {
-                    display: false
+                    display: true
                 },
                 responsive: false,
                 title: {
@@ -287,16 +303,20 @@ export default class StatChart {
                     text: name
                 },
                 tooltips: {
-                    enabled: true
+                    enabled: true,
+                    mode: 'index',
+                    inspect: true
                 },
                 scales: {
                     xAxes: [{
+                        stacked: true,
                         display: true,
                         scaleLabel: {
                             display: false,
                         }
                     }],
                     yAxes: [{
+                        stacked: true,
                         display: true,
                         position: 'right',
                         scaleLabel: {

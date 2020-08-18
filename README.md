@@ -15,8 +15,10 @@
 ### Виджет статистики сделок
 ![screenshot](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/printscreen.png?raw=true)
 
-В этом виджете выводится статистика доходов по дням за заданный, с учетом комиссии.
+В этом виджете выводится статистика доходов по дням за заданный период, с учетом комиссии.
 Также выводится краткая сводка в нижней части виджета.
+
+При нажатии на легенду графика можно просматривать только нужные столбцы.
 
 ## Установка
 [![download](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/download.png?raw=true)](https://github.com/igor4566/tinvest-trading-stat/releases/download/v1.0.0/tinvest-trading-stat.zip)
