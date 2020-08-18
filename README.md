@@ -21,7 +21,7 @@
 При нажатии на легенду графика можно просматривать только нужные столбцы.
 
 ## Установка
-[![download](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/download.png?raw=true)](https://github.com/igor4566/tinvest-trading-stat/releases/download/v1.0.0/tinvest-trading-stat.zip)
+[![download](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/download.png?raw=true)](https://github.com/igor4566/tinvest-trading-stat/releases/download/v1.1.0/tinvest-trading-stat.zip)
 
  1. Скачайте архив по ссылке выше.
  2. Распакуйте архив.
