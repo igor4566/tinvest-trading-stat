@@ -65,22 +65,35 @@ export default class StatChart {
 
         closeEl.onclick = () => {
             chart.remove();
+            delete window.chart;
         }
     }
 
     _addButtons(el) {
         const btns = [1, 2, 3, 6, 12];
         const wrapper = document.createElement('div');
-        wrapper.className = 'stat-btn-wrapper';
+        wrapper.className = 'src-modules-Chart-containers-components-SettingsPanel-styles-group-23mIT';
         el.appendChild(wrapper);
         const $this = this;
 
         for (const item of btns) {
             const btn = document.createElement('button');
-            btn.className = 'stat-btn'
+            btn.className = 'pt-button pt-minimal pt-small src-modules-Chart-containers-components-SettingsPanel-styles-optionsButton-3UGvF'
             btn.innerHTML = item + ' мес.';
 
+            if (item === 1) {
+                btn.classList.add('pt-active');
+            }
+
             btn.onclick = async () => {
+                const btns = wrapper.getElementsByClassName('pt-button');
+
+                for(const el of btns) {
+                    el.classList.remove('pt-active');
+                }
+
+                btn.classList.add('pt-active');
+
                 await $this._addChart(el, item);
             }
 
@@ -111,10 +124,18 @@ export default class StatChart {
 
         let obj = {};
         let dObj = {};
-        items.reverse();
+        // items.reverse();
 
         items.forEach((item) => {
-            if (item.ticker !== 'USDRUB' && item.status === 'done' && item.ticker) {
+            if (item.operationType === 'Buy') {
+                item.price = -item.price;
+            }
+
+            return item;
+        });
+
+        items.forEach((item) => {
+            if (item.ticker !== 'USDRUB' && item.status === 'done' && item.ticker && item.accountType === 'Tinkoff') {
                 const date = moment(item.date).format('L');
 
                 if (!obj[item.ticker]) {
@@ -123,10 +144,6 @@ export default class StatChart {
 
                 if (!obj[item.ticker][date]) {
                     obj[item.ticker][date] = {};
-                }
-
-                if (item.operationType === 'Buy') {
-                    item.price = -item.price;
                 }
 
                 if (!dObj[date]) {
@@ -175,9 +192,6 @@ export default class StatChart {
 
                         items.forEach((oldItem) => {
                             if (oldItem.ticker === item.ticker && oldItem.operationType === opposite && unixDate > moment(oldItem.date).unix() && item.quantity > 0 && oldItem.quantity > 0) {
-                                dObj[date].sumCom -= oldItem.commissionRub;
-                                oldItem.commissionRub = 0;
-
                                 let sum;
 
                                 if (item.quantity - oldItem.quantity >= 0) {
@@ -187,8 +201,9 @@ export default class StatChart {
                                     oldItem.quantity -= oldItem.quantity;
                                 } else {
                                     sum = item.quantity * (oldItem.price + item.price);
-                                    item.quantity -= item.quantity;
+
                                     oldItem.quantity -= item.quantity;
+                                    item.quantity -= item.quantity;
                                 }
 
                                 switch (oldItem.currency) {
@@ -219,17 +234,17 @@ export default class StatChart {
             debs = {
                 'USD': {
                     label: 'USD',
-                    backgroundColor: '#174e18',
+                    backgroundColor: '#674B9C',
                     data: []
                 },
                 'EUR': {
                     label: 'EUR',
-                    backgroundColor: '#184d67',
+                    backgroundColor: '#007597',
                     data: []
                 },
                 'RUB': {
                     label: 'RUB',
-                    backgroundColor: '#6e234d',
+                    backgroundColor: '#9C7D18',
                     data: []
                 }
             };
@@ -239,7 +254,7 @@ export default class StatChart {
         let sumRUB = 0;
 
         for (const key in dObj) {
-            const date = moment(key, 'L').format('DD.MM.YYYY');
+            const date = moment(key, 'L').format('DD.MM.YY');
 
             labels = [...labels, date];
 
@@ -271,9 +286,9 @@ export default class StatChart {
         wrapper.className = 'stat-wrap';
 
         wrapper.innerHTML = '';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Доход за период: <span><b>' + sumUSD.toFixed(2) + ' $ / '+sumRUB.toFixed(2)+' ₽ / '+sumEUR.toFixed(2)+' €</b></span></div>';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Выплачено комиссии: <span><b>' + sumCom.toFixed(2) + ' ₽</b></span></div>';
-        wrapper.innerHTML += '<div class="stat-wrap_items">Кол-во сделок: <span><b>' + sumOperations + '</b></span></div>';
+        wrapper.innerHTML += '<div class="stat-wrap_items">Доход за период: <span>' + sumUSD.toFixed(2) + ' $ / '+sumRUB.toFixed(2)+' ₽ / '+sumEUR.toFixed(2)+' €</span></div>';
+        wrapper.innerHTML += '<div class="stat-wrap_items">Выплачено комиссии: <span>' + sumCom.toFixed(2) + ' ₽</span></div>';
+        wrapper.innerHTML += '<div class="stat-wrap_items">Кол-во сделок: <span>' + sumOperations + '</span></div>';
     }
 
     _setChart(canvas, name, type, data, labels) {
@@ -295,11 +310,16 @@ export default class StatChart {
             },
             options: {
                 legend: {
-                    display: true
+                    display: true,
+                    labels: {
+                        fontColor: '#8a9ba8',
+                        boxWidth: 10,
+                        usePointStyle: true
+                    }
                 },
                 responsive: false,
                 title: {
-                    display: true,
+                    display: false,
                     text: name
                 },
                 tooltips: {
@@ -313,6 +333,12 @@ export default class StatChart {
                         display: true,
                         scaleLabel: {
                             display: false,
+                        },
+                        gridLines: {
+                            color: '#34414C'
+                        },
+                        ticks: {
+                            fontColor: '#8a9ba8',
                         }
                     }],
                     yAxes: [{
@@ -321,6 +347,12 @@ export default class StatChart {
                         position: 'right',
                         scaleLabel: {
                             display: false,
+                        },
+                        gridLines: {
+                            color: '#34414C'
+                        },
+                        ticks: {
+                            fontColor: '#8a9ba8',
                         }
                     }]
                 }

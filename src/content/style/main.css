@@ -6,16 +6,14 @@
     bottom: 10px;
     width: 100%;
 }
+
 .stat-wrap_items {
     text-align: center;
+    color: #8a9ba8;
 }
+
 .stat-wrap span {
-    font-size: 1.5em;
+    font-size: 18px;
     display: block;
-}
-.stat-btn {
-    background-color: #2d3d47;
-    border: none;
-    margin-right: 2px;
-    cursor: pointer;
+    color: #c8cbd0;
 }
