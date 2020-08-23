@@ -17,3 +17,33 @@
     display: block;
     color: #c8cbd0;
 }
+
+#chartjs-tooltip {
+    opacity: 1;
+    display: none;
+    position: absolute;
+    -webkit-transform: translate(-40%, 0);
+    transform: translate(-40%, 0);
+}
+
+.chartjs-tooltip-key {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+}
+
+#stat-chart .wrap-widget {
+    flex-direction: row;
+    padding-bottom: 0;
+    padding-top: 0;
+}
+
+.sidebar-filter {
+    background: #30404d;
+    overflow-y: auto;
+}
+
+.wrap-btns {
+    position: absolute;
+}

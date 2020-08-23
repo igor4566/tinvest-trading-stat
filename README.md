@@ -13,7 +13,7 @@
  - сводные графики разнообразных зависимостей, которые влияют на ваш результат
 
 ### Виджет статистики сделок
-![screenshot](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/printscreen.png?raw=true)
+![screenshot](https://github.com/igor4566/tinvest-trading-stat/blob/v1.2.0/other/printscreen.png?raw=true)
 
 В этом виджете выводится статистика доходов по дням за заданный период, с учетом комиссии.
 Также выводится краткая сводка в нижней части виджета.
@@ -21,7 +21,7 @@
 При нажатии на легенду графика можно просматривать только нужные столбцы.
 
 ## Установка
-[![download](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/download.png?raw=true)](https://github.com/igor4566/tinvest-trading-stat/releases/download/v1.1.0/tinvest-trading-stat.zip)
+[![download](https://github.com/igor4566/tinvest-trading-stat/blob/master/other/download.png?raw=true)](https://github.com/igor4566/tinvest-trading-stat/releases/download/v1.2.0/tinvest-trading-stat.zip)
 
  1. Скачайте архив по ссылке выше.
  2. Распакуйте архив.

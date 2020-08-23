@@ -16,7 +16,7 @@
     {
       "matches": ["*://*.tinkoff.ru/invest-terminal/*"],
       "js": ["{{./content/index.js}}"],
-      "css": ["{{./content/style/main.css}}"]
+      "css": ["{{./content/style/main.css}}", "{{./content/style/vendor.css}}"]
     }
   ],
   "manifest_version": 2

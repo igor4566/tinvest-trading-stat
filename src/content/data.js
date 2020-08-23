@@ -36,4 +36,27 @@ export default class Data {
             return items;
         }
     }
+
+    async getCurrency(type) {
+        const sessionId = getCookie('psid');
+
+        let res = await axios.get(
+            this.host + '/trading/currency/get',
+            {
+                params: {
+                    appName: 'invest_terminal',
+                    appVersion: '2.0.0',
+                    sessionId: sessionId,
+                    ticker: type
+                }
+            }
+        ).catch((e) => {
+            console.log(e);
+        });
+
+        if (res.data.status === 'Ok') {
+            const currency = res.data.payload.price.value;
+            return currency;
+        }
+    }
 }
